@@ -64,4 +64,18 @@
     }
   }
 
-  function
+  function addMsg(text, who) {
+    const box = document.getElementById("chatbox");
+    const div = document.createElement("div");
+    div.className = "msg " + who;
+    div.textContent = text;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  document.getElementById("input").addEventListener("keydown", e => {
+    if (e.key === "Enter") send();
+  });
+</script>
+</body>
+</html>
