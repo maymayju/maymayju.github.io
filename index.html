@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>챗봇</title>
+  <style>
+    body { background: #1a1a2e; color: #eee; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
+    #wrap { width: 100%; max-width: 600px; }
+    #chatbox { background: #16213e; border-radius: 12px; padding: 16px; height: 400px; overflow-y: auto; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .msg { padding: 10px 14px; border-radius: 10px; max-width: 80%; line-height: 1.6; white-space: pre-wrap; }
+    .user { background: #0f3460; align-self: flex-end; }
+    .bot { background: #2a2a4a; align-self: flex-start; }
+    #inputarea { display: flex; gap: 8px; }
+    #input { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #16213e; color: #eee; font-size: 15px; }
+    button { padding: 10px 18px; border-radius: 8px; border: none; background: #e94560; color: #fff; cursor: pointer; font-size: 15px; }
+  </style>
+</head>
+<body>
+<div id="wrap">
+  <div id="chatbox"></div>
+  <div id="inputarea">
+    <input id="input" type="text" placeholder="메시지를 입력하세요..." />
+    <button onclick="send()">전송</button>
+  </div>
+</div>
+<script>
+  const GEMINI_API_KEY = "여기에_API_키_입력";
+  const SYSTEM_PROMPT = "당신은 친절한 AI입니다.";
+  let history = [];
+
+  async function send() {
+    const input = document.getElementById("input");
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+    addMsg(text, "user");
+    history.push({ role: "user", parts: [{ text }] });
+
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: history
+      })
+    });
+
+    const data = await res.json();
+    const reply = data.candidates[0].content.parts[0].text;
+    history.push({ role: "model", parts: [{ text: reply }] });
+    addMsg(reply, "bot");
+  }
+
+  function addMsg(text, who) {
+    const box = document.getElementById("chatbox");
+    const div = document.createElement("div");
+    div.className = "msg " + who;
+    div.textContent = text;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  document.getElementById("input").addEventListener("keydown", e => {
+    if (e.key === "Enter") send();
+  });
+</script>
+</body>
+</html>
