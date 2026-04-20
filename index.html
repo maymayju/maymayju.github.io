@@ -20,7 +20,7 @@
   <div id="chatbox"></div>
   <div id="inputarea">
     <input id="input" type="text" placeholder="메시지를 입력하세요..." />
-    <button onclick="send()">전송</button>
+    <button id="sendBtn">전송</button>
   </div>
 </div>
 <script>
@@ -76,6 +76,7 @@
   document.getElementById("input").addEventListener("keydown", e => {
     if (e.key === "Enter") send();
   });
+  document.getElementById("sendBtn").addEventListener("click", send);
 </script>
 </body>
 </html>
